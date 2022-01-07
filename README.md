@@ -6,7 +6,7 @@ Call the `backup` function with your `"source_path"` and `"backup_path"`:
 
     backup('source/path/', 'backup/path/')
 
-And schedule the execution of <b>backup.py</b> by <b>Crontab</b> on Mac/Linux or <b>Task Scheduler</b> on Windows. Also, you can use a tuple of `excepted_paths` as a third argument, and set `clean_backup` to `True`, but read the [warning](#warning) section before using this last argument.
+And schedule the execution of <b>backup.py</b> using <b>Crontab</b> on Mac/Linux or <b>Task Scheduler</b> on Windows. Also, you can use a tuple of `excepted_paths` as a third argument, and set `clean_backup` to `True`, but read the [warning](#warning) section before using this last argument.
 
 ## WARNING
 The `clean_backup=True` argument calls the `backup_cleaner` function, which removes all unnecessary paths from the `"backup_path"` and returns all files changed (maybe by accident) in the backup directory to their state in the source directory. Somebody can be confused why the backup function doesn't replace files changed in the "backup_path" by default, so let's clear this logic below:
