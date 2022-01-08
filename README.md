@@ -29,6 +29,18 @@ Finally, in the <b>Conditions</b> tab, disable the <b>Start the task only if the
 
 Of course, for security reasons, Windows will ask your account password.
 
+### Crontab
+
+Open your terminal and type:
+
+    $ crontab -e
+
+In the opened file, firstly, type how often you want to execute the command. For example: `*/5 * * * *` means every 5 minutes (for better comprehension, you can test these expressions on [Crontab.guru](https://crontab.guru/)). Now type `python3` or the path to your python installation and finally add the path of the script:
+
+    */5 * * * * python3 /your/path/backup.py
+
+Don't forget to save your changes.
+
 ## WARNING
 The `clean_backup=True` argument calls the `backup_cleaner` function, which removes all unnecessary paths from the `"backup_path"` and returns all files changed (maybe by accident) in the backup directory to their state in the source directory. Somebody can be confused why the backup function doesn't replace files changed in the `"backup_path"` by default, so let's clear this logic below:
 
