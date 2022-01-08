@@ -11,6 +11,23 @@ And schedule the execution of <b>backup.py</b> using <b>Task Scheduler</b> on Wi
 ## SCHEDULING
 
 ### Task Scheduler
+Open <b>Task Scheduler</b> and press <b>Create Task...</b> In the <b>General</b> tab of the <b>Create Task</b> window, type your task <b>Name</b>, add some <b>Description</b> if you want, select <b>Run whether user is logged on or not</b> and <b>Run with highest privileges</b>:
+
+![task_scheduler_general](https://github.com/VasylMak/backup.py/blob/main/Task%20Scheduler%20Screenshots/task_scheduler_general.png?raw=true)
+
+Go to the <b>Triggers</b> tab and press <b>New...</b> In the <b>New Trigger</b> window, press <b>Repeat task every:</b>, choose how often you want to repeat this task, set <b>for a duration of:</b> to <b>Indefinitely</b> and press <b>OK</b>:
+
+![task_scheduler_triggers](https://github.com/VasylMak/backup.py/blob/main/Task%20Scheduler%20Screenshots/task_scheduler_triggers.png?raw=true)
+
+Moved to the <b>Actions</b> tab press <b>New...</b> too. In the <b>New Action</b> window, go to the <b>Program/script:</b> setting and <b>Browse...</b> your python interpreter (Here the best choice is the usage of <b>pyw.exe</b>/<b>pythonw.exe</b> if you want to run the script hiddenly in the background). Also, be sure to add the path to <b>backup.py</b> with quotes in the option <b>Add arguments (optional):</b> before pressing <b>OK</b>:
+
+![task_scheduler_actions](https://github.com/VasylMak/backup.py/blob/main/Task%20Scheduler%20Screenshots/task_scheduler_actions.png?raw=true)
+
+Finally, in the <b>Conditions</b> tab, disable the <b>Start the task only if the computer is on AC power</b> option and press <b>OK</b>:
+
+![task_scheduler_conditions](https://github.com/VasylMak/backup.py/blob/main/Task%20Scheduler%20Screenshots/task_scheduler_conditions.png?raw=true)
+
+Of course, for security reasons, Windows will ask your account password.
 
 ## WARNING
 The `clean_backup=True` argument calls the `backup_cleaner` function, which removes all unnecessary paths from the `"backup_path"` and returns all files changed (maybe by accident) in the backup directory to their state in the source directory. Somebody can be confused why the backup function doesn't replace files changed in the `"backup_path"` by default, so let's clear this logic below:
