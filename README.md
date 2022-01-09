@@ -134,3 +134,196 @@ def backup(source_path, backup_path, excepted_paths=None, clean_backup=False):
         clean_backup (boolean) - removes extra files in "backup_path".
     '''
 ```
+
+With the help of `os.name`, python will decide if the `TRASH` or `RECYCLE_BIN` directory is relevant in an operating system and join them with the added `excepted_paths`:
+
+``` python
+    # Except trash/recycle bin
+    if name == 'posix':
+        system_exception = TRASH
+    elif name == 'nt':
+        system_exception = RECYCLE_BIN
+    
+    # Check user exceptions
+    if excepted_paths is not None:
+        excepted_paths = system_exception+excepted_paths
+    else:
+        excepted_paths = system_exception
+    warning(f'Excepted paths -> {"; ".join(path for path in excepted_paths)}')
+```
+
+Directories found in the `source_path` can be convenient in the log and are needed if `clean_backup=True`:
+
+``` python
+    # Source found directories
+    expected_folders = set()
+    expected_files = set()
+    backuped_paths = 0
+```
+
+This loop will iterate over the `source_path` and ignore `excepted_paths`:
+
+``` python
+    for dir_path, folders, filenames in walk(source_path):
+        # Except all exceptions
+        if not any(excepted in dir_path for excepted in excepted_paths):
+```
+
+Maybe, is not too important, but empty folders will count:
+
+``` python
+            # Copy empty folders too
+            if folders == [] and filenames == []:
+                backup_folder_path = dir_path.replace(source_path, backup_path)
+                expected_folders.add(backup_folder_path)
+                if not exists(backup_folder_path):
+                    makedirs(backup_folder_path)
+                    info(f'Folder "{backup_folder_path}" is created')
+                    backuped_paths += 1
+```
+
+Modified and new files will have the incomplete extension until a successful copy:
+
+``` python
+            for file in filenames:
+                file_path = join_path(dir_path, file)
+                backup_file_path = file_path.replace(source_path, backup_path)
+                expected_files.add(backup_file_path)
+                incomplete_file_path = backup_file_path+INCOMPLETE_EXTENSION
+
+                try:
+                    # Copy matched but modificated files
+                    if exists(backup_file_path):
+                        file_mod_time = getmtime(file_path)
+                        backup_file_mod_time = getmtime(backup_file_path)
+                        if backup_file_mod_time < file_mod_time:
+                            copy(file_path, incomplete_file_path)
+                            remove(backup_file_path)
+                            rename(incomplete_file_path, backup_file_path)
+                            info(f'File "{backup_file_path}" is updated')
+                            backuped_paths += 1
+                    # Copy new files
+                    else:
+                        backup_file_dir = backup_file_path[:-len(file)]
+                        makedirs(backup_file_dir, exist_ok=True)
+                        copy(file_path, incomplete_file_path)
+                        rename(incomplete_file_path, backup_file_path)
+                        info(f'Copied "{file_path}" to "{backup_file_path}"')
+                        backuped_paths += 1
+```
+
+The except statement handle corrupted files, but any unexpected error should crash the execution:
+
+``` python
+                except OSError as os_error:
+                    error_code = os_error.errno
+                    if error_code == CORRUPTION_ERROR:
+                        critical(f'File "{file_path}" is corrupted')
+                    else:
+                        error(f'{os_error} in the "backup()" function')
+                        raise os_error
+```
+
+In addition to significant log statistics, `paths` can give the necessary data to `backup_cleaner`:
+
+``` python
+    paths = expected_folders.union(expected_files)
+    info(f'{len(paths)} paths are processed')
+    info(f'{backuped_paths} paths are backuped')
+    
+    # Warning: This function removes all unmatched data in backup paths
+    if clean_backup:
+        warning('Backup cleaner deletes all inconsistent paths in the backup')
+        backup_cleaner(source_path, backup_path, paths, system_exception)
+    else:
+        info(f'"clear_backup" argument is set to "False"\nBackup completed\n')
+```
+
+### Cleaner
+Sometimes some data are deleted from the source path consciously, and removing these accumulated directories can be tedious, so solving this task automatically it's convenient. The `backup_cleaner` function has four necessary arguments, which are provided by `backup`:
+
+``` python
+def backup_cleaner(source_path, backup_path, paths, system_exception):
+    '''Should be called only by the "backup()" function
+
+    source_path (str) - the source directory that are backuped;
+    backup_path (str) - the output directory of this backup;
+    dirs (set) - all files and folders in "source_path";
+    system_exception (tuple) - trash/recycle bin path.
+    '''
+```
+
+Directories found in the `backup_path` will permit determinate unnecessary files and folders:
+
+``` python
+    backup_folders = set()
+    backup_files = set()
+```
+
+This loop will iterate over the `backup_path` and ignore only the `system_exception`:
+
+``` python
+    for dir_path, folders, filenames in walk(backup_path):
+        # Except default trash/recycle bin paths
+        if not any(excepted in dir_path for excepted in system_exception):
+```
+
+The logic here reminds the previous `backup` loop, but in this one, our algorithm updates any file with unmatched size:
+
+``` python
+            # Count empty folders too
+            if folders == [] and filenames == []:
+                backup_folders.add(dir_path)
+            
+            for file in filenames:
+                file_path = join_path(dir_path, file)
+                backup_files.add(file_path)
+                try:
+                    source_dir_path = dir_path.replace(backup_path,source_path)
+                    source_file_path = join_path(source_dir_path, file)
+                    source_file_size = getsize(source_file_path)
+                    backup_file_size = getsize(file_path)
+                    incomplete_file_path = file_path+INCOMPLETE_EXTENSION
+
+                    # Reload files with same names but different sizes
+                    if source_file_size != backup_file_size:
+                        copy(source_file_path, incomplete_file_path)
+                        remove(file_path)
+                        rename(incomplete_file_path, file_path)
+                        info(f'Replaced "{file_path}" by "{source_file_path}"')
+
+                except OSError as os_error:
+                    error_code = os_error.errno
+                    if error_code in (INEXISTENT_FILE, CORRUPTION_ERROR):
+                        continue
+                    else:
+                        error(f'{os_error} in the "backup_cleaner()" function')
+                        raise os_error
+```
+
+Finally, python compares all `backup_paths` with `paths` provided by the `backup` function and removes unnecessary paths:
+
+``` python
+    # Remove unnecessary folders and files
+    backup_paths = backup_folders.union(backup_files)
+    unnecessary_paths = backup_paths-paths
+    unnecessary_paths_quantity = len(unnecessary_paths)
+    unnecessary_tree = tuple()
+    for unnecessary_path in unnecessary_paths:
+        info(f'"{unnecessary_path}" path will be removed from backup')
+        if not unnecessary_path.startswith(unnecessary_tree):
+            if isfile(unnecessary_path):
+                unnecessary_dir = dirname(unnecessary_path)
+                source_dir = unnecessary_dir.replace(backup_path, source_path)
+                if exists(source_dir):
+                    remove(unnecessary_path)
+                else:
+                    rmtree(unnecessary_dir)
+                    unnecessary_paths_quantity += 1
+                    unnecessary_tree += (unnecessary_dir,)
+                    info(f'"{unnecessary_dir}" path are removed from backup')
+            else:
+                rmtree(unnecessary_path)
+    
+    info(f'{unnecessary_paths_quantity} paths are removed\nBackup completed\n')
+```
