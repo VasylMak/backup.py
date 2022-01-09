@@ -117,7 +117,7 @@ def backup(source_path, backup_path, excepted_paths=None, clean_backup=False):
     Parameters:
         source_path (str) - the source directory to be backuped;
         backup_path (str) - the output directory of the backup;
-        excepted_paths (tuple) - unnecessary "source_path" directions;
+        excepted_paths (tuple) - unnecessary "source_path" directories;
         clean_backup (boolean) - removes extra files in "backup_path".
     '''
     # Except trash/recycle bin
