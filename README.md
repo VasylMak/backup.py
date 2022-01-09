@@ -1,12 +1,12 @@
 # BACKUP.PY
-Even the best professionals can make mistakes, and there is no way to exclude human errors from backup algorithms, but we can surely minimize them by making use of consistent algorithms.
+After the [disaster happened at Kyoto University](https://gizmodo.com/university-loses-valuable-supercomputer-research-after-1848286983), it's evident that there is no way to exclude human errors from backup algorithms, but we can surely minimize them. Python permit writing code very close to standard English sentences, which reduces the likelihood of bugs. The script presented in this repository should be self-explanatory and, in most cases, can be used without changes, as explained in the [quickstart](#quickstart) section.
 
 ## QUICKSTART
 Call the `backup` function with your `"source_path"` and `"backup_path"`:
 
     backup('source/path/', 'backup/path/')
 
-And schedule the execution of <b>backup.py</b> using <b>Task Scheduler</b> on Windows or <b>Crontab</b> on Mac/Linux. Also, you can use a tuple of `excepted_paths` as a third argument, and set `clean_backup` to `True`, but read the [warning](#warning) section before using this last argument.
+And schedule the execution of <b>backup.py</b> using [Task Scheduler](#task-scheduler) on Windows or [Crontab](#crontab) on Mac/Linux. Also, you can use a tuple of `excepted_paths` as a third argument, and set `clean_backup` to `True`, but read the [warning](#warning) section before using this last argument.
 
 ## SCHEDULING
 
