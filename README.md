@@ -1,5 +1,18 @@
 # BACKUP.PY
-After the [disaster happened at Kyoto University](https://gizmodo.com/university-loses-valuable-supercomputer-research-after-1848286983), it's evident that there is no way to exclude human errors from backup algorithms, but we can surely minimize them. Python permit writing code very close to standard English sentences, which reduces the likelihood of bugs. The script presented in this repository should be self-explanatory and, in most cases, can be used without changes, as explained in the [quickstart](#quickstart) section. However, it's always good to review the code with caution, principally if it interacts with crucial data, so I invite you to check the [tutorial](#) with an explanation about each line.
+After the [disaster happened at Kyoto University](https://gizmodo.com/university-loses-valuable-supercomputer-research-after-1848286983), it's evident that there is no way to exclude human errors from backup algorithms, but we can surely minimize them. Python permits writing code very close to standard English sentences, which reduces the likelihood of bugs. The script presented in this repository should be self-explanatory and, in most cases, can be used without changes, as explained in the [quickstart](#quickstart) section. However, it's always good to review the code with caution, mostly if it interacts with crucial data, so I invite you to check this [tutorial](#tutorial) with the deep explanation.
+
+## Table of Contents
+- [Quickstart](#quickstart)
+- [Scheduling](#scheduling)
+   - [Task Scheduler (for Windows users)](#task-scheduler)
+   - [Crontab (for Mac/Linux users)](#crontab)
+- [Warning](#warning)
+- [Tutorial](#tutorial)
+   - [Imports](#imports)
+   - [Logging](#logging)
+   - [Constants](#constants)
+   - [Backup](#backup)
+   - [Cleaner](#cleaner)
 
 ## QUICKSTART
 Call the `backup` function with your `"source_path"` and `"backup_path"`:
@@ -90,7 +103,7 @@ Logging is an essential tool for debugging, and it can clarify all backup intera
 chdir(dirname(__file__))
 ```
 
-The message formatting caths the runtime, level of gravity, and event. This formatting caths the runtime, level of gravity, and event message. The message formatting caths the runtime, level of gravity, and event explanation. All levels starting with `INFO` will be written to <b>backup.log</b>:
+The message formatting caths the runtime, level of gravity, and event explanation. All levels starting with `INFO` will be written to <b>backup.log</b>:
 
 ``` python
 log_format = '%(asctime)s - %(levelname)s - %(message)s'
@@ -260,7 +273,7 @@ Directories found in the `backup_path` will permit determinate unnecessary files
     backup_files = set()
 ```
 
-This loop will iterate over the `backup_path` and ignore only the `system_exception`:
+This loop iterates over the `backup_path` and ignores only the `system_exception`:
 
 ``` python
     for dir_path, folders, filenames in walk(backup_path):
