@@ -111,7 +111,7 @@ def backup_cleaner(source_path, backup_path, paths, system_exception):
     info(f'{unnecessary_paths_quantity} paths are removed\nBackup completed\n')
                 
 
-def backup(source_path, backup_path, excepted_paths=None, clean_backup=False):
+def backup(source_path,backup_path,excepted_paths=tuple(),clean_backup=False):
     '''Backup files from "source_path" to "backup_path"
 
     Parameters:
@@ -126,11 +126,8 @@ def backup(source_path, backup_path, excepted_paths=None, clean_backup=False):
     elif name == 'nt':
         system_exception = RECYCLE_BIN
     
-    # Check user exceptions
-    if excepted_paths is not None:
-        excepted_paths = system_exception+excepted_paths
-    else:
-        excepted_paths = system_exception
+    # Add user exceptions if they exist
+    excepted_paths += system_exception
     warning(f'Excepted paths -> {"; ".join(path for path in excepted_paths)}')
     
     # Source found directories
