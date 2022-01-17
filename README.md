@@ -157,11 +157,8 @@ With the help of `os.name`, python will decide if the `TRASH` or `RECYCLE_BIN` d
     elif name == 'nt':
         system_exception = RECYCLE_BIN
     
-    # Check user exceptions
-    if excepted_paths is not None:
-        excepted_paths = system_exception+excepted_paths
-    else:
-        excepted_paths = system_exception
+    # Add user exceptions if they exist
+    excepted_paths += system_exception
     warning(f'Excepted paths -> {"; ".join(path for path in excepted_paths)}')
 ```
 
