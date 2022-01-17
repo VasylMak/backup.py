@@ -137,7 +137,7 @@ CORRUPTION_ERROR = 22
 The backup function has four parameters with a corresponding docstring:
 
 ``` python
-def backup(source_path, backup_path, excepted_paths=None, clean_backup=False):
+def backup(source_path,backup_path,excepted_paths=tuple(),clean_backup=False):
     '''Backup files from "source_path" to "backup_path"
 
     Parameters:
